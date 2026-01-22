@@ -1,8 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-// TODO Problem 1 - Run test cases and record any defects the test code finds in the comment above the test method.
-// DO NOT MODIFY THE CODE IN THE TESTS in this file, just the comments above the tests. 
-// Fix the code being tested to match requirements and make all tests pass. 
+// DO NOT MODIFY THE CODE IN THE TESTS in this file, just the comments above the tests.
+// Fix the code being tested to match requirements and make all tests pass.
 
 [TestClass]
 public class TakingTurnsQueueTests
@@ -12,6 +11,10 @@ public class TakingTurnsQueueTests
     // run until the queue is empty
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
     // Defect(s) Found: 
+    // 1. Queue is reversed — using Insert(0,...) + RemoveAt(0) makes it behave like a stack (LIFO), not FIFO
+    // 2. Person with 1 turn remaining is removed instead of given their last turn
+    //    → Bob disappears after second turn, Sue disappears too early
+    // 3. Actual sequence ends prematurely and in wrong order
     public void TestTakingTurnsQueue_FiniteRepetition()
     {
         var bob = new Person("Bob", 2);
@@ -44,6 +47,9 @@ public class TakingTurnsQueueTests
     // After running 5 times, add George with 3 turns.  Run until the queue is empty.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, George, Sue, Tim, George, Tim, George
     // Defect(s) Found: 
+    // 1. Same LIFO behavior — order is completely reversed
+    // 2. Players run out of turns too early (especially when reaching 1 turn)
+    // 3. George is added in wrong position due to reversed queue logic
     public void TestTakingTurnsQueue_AddPlayerMidway()
     {
         var bob = new Person("Bob", 2);
@@ -86,6 +92,10 @@ public class TakingTurnsQueueTests
     // Run 10 times.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
     // Defect(s) Found: 
+    // 1. Queue is LIFO instead of FIFO → wrong order from the beginning
+    // 2. Tim (0 turns) gets turns decremented when it should stay unchanged forever
+    // 3. Condition `if (person.Turns > 1)` is wrong — should be `if (person.Turns != 0)`
+    //    or better: `if (person.Turns > 0 || person.Turns <= 0 && ...)` but current logic breaks forever case
     public void TestTakingTurnsQueue_ForeverZero()
     {
         var timTurns = 0;
@@ -117,6 +127,9 @@ public class TakingTurnsQueueTests
     // Run 10 times.
     // Expected Result: Tim, Sue, Tim, Sue, Tim, Sue, Tim, Tim, Tim, Tim
     // Defect(s) Found: 
+    // 1. Reversed queue order (LIFO instead of FIFO)
+    // 2. Negative turns are decremented (becomes more negative) — should remain unchanged
+    // 3. Same incorrect condition (> 1) prevents proper infinite behavior
     public void TestTakingTurnsQueue_ForeverNegative()
     {
         var timTurns = -3;
@@ -144,6 +157,7 @@ public class TakingTurnsQueueTests
     // Scenario: Try to get the next person from an empty queue
     // Expected Result: Exception should be thrown with appropriate error message.
     // Defect(s) Found: 
+    // → This test actually passes — correct exception is thrown with correct message
     public void TestTakingTurnsQueue_Empty()
     {
         var players = new TakingTurnsQueue();

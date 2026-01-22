@@ -37,17 +37,24 @@ public class TakingTurnsQueue
         {
             throw new InvalidOperationException("No one in the queue.");
         }
-        else
+
+        Person person = _people.Dequeue();
+
+        // People with ≤ 0 turns → infinite → always go back (and never decrement)
+        // People with > 0 turns → go back only if they still have turns remaining after this one
+        if (person.Turns <= 0 || person.Turns > 1)
         {
-            Person person = _people.Dequeue();
-            if (person.Turns > 1)
+            // Only decrement if they had a finite positive number of turns
+            if (person.Turns > 0)
             {
                 person.Turns -= 1;
-                _people.Enqueue(person);
             }
 
-            return person;
+            _people.Enqueue(person);
         }
+        // else: turns == 1 → this was their last turn → do NOT put back
+
+        return person;
     }
 
     public override string ToString()
