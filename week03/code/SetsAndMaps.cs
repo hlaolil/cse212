@@ -21,17 +21,35 @@ public static class SetsAndMaps
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     public static string[] FindPairs(string[] words)
     {
-        var set = new HashSet<string>(words);
-        var result = new List<string>();
+        var seen = new HashSet<string>();
+        var pairs = new List<string>(words.Length / 2); 
+
         foreach (var word in words)
         {
-            string rev = new string(new[] { word[1], word[0] });
-            if (word.CompareTo(rev) < 0 && set.Contains(rev))
+            if (word.Length != 2) continue;
+
+            
+            char a = word[0];
+            char b = word[1];
+            string rev = new string([b, a]);  
+
+            if (a == b) continue;               
+
+            if (seen.Contains(rev))
             {
-                result.Add($"{word} & {rev}");
+                
+                if (string.CompareOrdinal(word, rev) < 0)
+                    pairs.Add($"{word} & {rev}");
+                else
+                        pairs.Add($"{rev} & {word}");
+            }
+            else
+            {
+            seen.Add(word);
             }
         }
-        return result.ToArray();
+
+        return pairs.ToArray();
     }
 
     /// <summary>
@@ -138,7 +156,7 @@ public static class SetsAndMaps
             var p = feature?.Properties;
             if (p != null && p.Mag.HasValue && !string.IsNullOrWhiteSpace(p.Place))
             {
-            // Exactly the format the test wants
+            
             result.Add($"{p.Place.Trim()} - Mag {p.Mag.Value}");
             }
         }
