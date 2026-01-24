@@ -21,8 +21,17 @@ public static class SetsAndMaps
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     public static string[] FindPairs(string[] words)
     {
-        // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        var set = new HashSet<string>(words);
+        var result = new List<string>();
+        foreach (var word in words)
+        {
+            string rev = new string(new[] { word[1], word[0] });
+            if (word.CompareTo(rev) < 0 && set.Contains(rev))
+            {
+                result.Add($"{word} & {rev}");
+            }
+        }
+        return result.ToArray();
     }
 
     /// <summary>
