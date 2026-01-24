@@ -10,6 +10,6 @@ public class Feature
 
 public class Properties
 {
-    public double Mag { get; set; }
-    public string Place { get; set; } = string.Empty;
+    public double? Mag { get; set; }
+    public string? Place { get; set; }
 }

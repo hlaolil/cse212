@@ -120,16 +120,29 @@ public static class SetsAndMaps
         var json = reader.ReadToEnd();
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-        var featureCollection = JsonSerializer.Deserialize<FeatureCollection>(json, options)
+        var collection = JsonSerializer.Deserialize<FeatureCollection>(json, options);
 
         // TODO Problem 5:
         // 1. Add code in FeatureCollection.cs to describe the JSON using classes and properties 
         // on those classes so that the call to Deserialize above works properly.
         // 2. Add code below to create a string out each place a earthquake has happened today and its magitude.
-            ?? new FeatureCollection();
         // 3. Return an array of these string descriptions.
-        return featureCollection.Features
-            .Select(f => $"Place: {f.Properties.Place}, Magnitude: {f.Properties.Mag}")
-            .ToArray();
+        if (collection?.Features == null || collection.Features.Count == 0)
+
+            return Array.Empty<string>();
+
+        var result = new List<string>(collection.Features.Count);
+
+        foreach (var feature in collection.Features)
+        {
+            var p = feature?.Properties;
+            if (p != null && p.Mag.HasValue && !string.IsNullOrWhiteSpace(p.Place))
+            {
+            // Exactly the format the test wants
+            result.Add($"{p.Place.Trim()} - Mag {p.Mag.Value}");
+            }
+        }
+
+        return result.ToArray();
     }
 }
