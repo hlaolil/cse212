@@ -21,8 +21,35 @@ public static class SetsAndMaps
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     public static string[] FindPairs(string[] words)
     {
-        // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        var seen = new HashSet<string>();
+        var pairs = new List<string>(words.Length / 2); 
+
+        foreach (var word in words)
+        {
+            if (word.Length != 2) continue;
+
+            
+            char a = word[0];
+            char b = word[1];
+            string rev = new string([b, a]);  
+
+            if (a == b) continue;               
+
+            if (seen.Contains(rev))
+            {
+                
+                if (string.CompareOrdinal(word, rev) < 0)
+                    pairs.Add($"{word} & {rev}");
+                else
+                        pairs.Add($"{rev} & {word}");
+            }
+            else
+            {
+            seen.Add(word);
+            }
+        }
+
+        return pairs.ToArray();
     }
 
     /// <summary>
@@ -42,7 +69,13 @@ public static class SetsAndMaps
         foreach (var line in File.ReadLines(filename))
         {
             var fields = line.Split(",");
-            // TODO Problem 2 - ADD YOUR CODE HERE
+            if (fields.Length < 4) continue;
+            string degree = fields[3].Trim();
+
+            if (!string.IsNullOrEmpty(degree))
+            {
+                degrees[degree] = degrees.GetValueOrDefault(degree, 0) + 1;
+            }
         }
 
         return degrees;
@@ -66,8 +99,19 @@ public static class SetsAndMaps
     /// </summary>
     public static bool IsAnagram(string word1, string word2)
     {
-        // TODO Problem 3 - ADD YOUR CODE HERE
-        return false;
+        // Remove all whitespace and convert to lowercase
+        string s1 = new string(word1.Where(c => !char.IsWhiteSpace(c)).ToArray()).ToLowerInvariant();
+        string s2 = new string(word2.Where(c => !char.IsWhiteSpace(c)).ToArray()).ToLowerInvariant();
+
+        if (s1.Length != s2.Length)
+            return false;
+
+        // Sort both strings and compare
+        char[] arr1 = s1.ToCharArray();
+        char[] arr2 = s2.ToCharArray();
+        Array.Sort(arr1);
+        Array.Sort(arr2);
+        return new string(arr1).Equals(new string(arr2));
     }
 
     /// <summary>
@@ -94,13 +138,29 @@ public static class SetsAndMaps
         var json = reader.ReadToEnd();
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-        var featureCollection = JsonSerializer.Deserialize<FeatureCollection>(json, options);
+        var collection = JsonSerializer.Deserialize<FeatureCollection>(json, options);
 
         // TODO Problem 5:
         // 1. Add code in FeatureCollection.cs to describe the JSON using classes and properties 
         // on those classes so that the call to Deserialize above works properly.
         // 2. Add code below to create a string out each place a earthquake has happened today and its magitude.
         // 3. Return an array of these string descriptions.
-        return [];
+        if (collection?.Features == null || collection.Features.Count == 0)
+
+            return Array.Empty<string>();
+
+        var result = new List<string>(collection.Features.Count);
+
+        foreach (var feature in collection.Features)
+        {
+            var p = feature?.Properties;
+            if (p != null && p.Mag.HasValue && !string.IsNullOrWhiteSpace(p.Place))
+            {
+            
+            result.Add($"{p.Place.Trim()} - Mag {p.Mag.Value}");
+            }
+        }
+
+        return result.ToArray();
     }
 }
